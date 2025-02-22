@@ -2,6 +2,20 @@
 
 # 域名后缀匹配
 DOMAIN-SUFFIX,audiences.me
+DOMAIN-SUFFIX,ptchdbits.co
+DOMAIN-SUFFIX,hhanclub.top
+DOMAIN-SUFFIX,m-team.cc
+DOMAIN-SUFFIX,rousi.zip
+DOMAIN-SUFFIX,btschool.club
+DOMAIN-SUFFIX,open.cd
+DOMAIN-SUFFIX,pttime.org
 
 # 域名关键字匹配
 DOMAIN-KEYWORD,audiences
+DOMAIN-KEYWORD,ptchdbits
+DOMAIN-KEYWORD,hhanclub
+DOMAIN-KEYWORD,m-team
+DOMAIN-KEYWORD,rousi
+DOMAIN-KEYWORD,btschool
+DOMAIN-KEYWORD,open.cd
+DOMAIN-KEYWORD,pttime.org
