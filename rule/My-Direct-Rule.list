@@ -6,10 +6,11 @@ DOMAIN-SUFFIX,hhanclub.top
 DOMAIN-SUFFIX,m-team.cc
 DOMAIN-SUFFIX,btschool.club
 DOMAIN-SUFFIX,open.cd
+DOMAIN-SUFFIX,cinefiles.info
 
 # 域名关键字匹配
 DOMAIN-KEYWORD,ptchdbits
 DOMAIN-KEYWORD,m-team
 DOMAIN-KEYWORD,hhanclub
 DOMAIN-KEYWORD,btschool
-DOMAIN-KEYWORD,open.cd
+DOMAIN-KEYWORD,cinefiles
