@@ -6,7 +6,6 @@ DOMAIN-SUFFIX,hhanclub.top
 DOMAIN-SUFFIX,m-team.cc
 DOMAIN-SUFFIX,btschool.club
 DOMAIN-SUFFIX,open.cd
-DOMAIN-SUFFIX,pttime.org
 
 # 域名关键字匹配
 DOMAIN-KEYWORD,ptchdbits
@@ -14,4 +13,3 @@ DOMAIN-KEYWORD,m-team
 DOMAIN-KEYWORD,hhanclub
 DOMAIN-KEYWORD,btschool
 DOMAIN-KEYWORD,open.cd
-DOMAIN-KEYWORD,pttime.org
