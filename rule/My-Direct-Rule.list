@@ -1,5 +1,9 @@
 # 直连规则
 
+# 域名匹配
+DOMAIN,tv.micu.hk
+DOMAIN,tv1.micu.hk
+
 # 域名后缀匹配
 DOMAIN-SUFFIX,ptchdbits.co
 DOMAIN-SUFFIX,hhanclub.top
