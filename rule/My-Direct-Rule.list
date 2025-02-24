@@ -3,6 +3,7 @@
 # 域名匹配
 DOMAIN,tv.micu.hk
 DOMAIN,tv1.micu.hk
+DOMAIN,v1.micu.hk
 DOMAIN,v0.micu.hk
 
 # 域名后缀匹配
