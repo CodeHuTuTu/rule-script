@@ -7,7 +7,7 @@ DOMAIN-SUFFIX,rousi.zip
 DOMAIN-SUFFIX,invites.fun
 DOMAIN-SUFFIX,api.trakt.tv
 DOMAIN-SUFFIX,jable.tv
-#DOMAIN-SUFFIX,ptchdbits.co
+DOMAIN-SUFFIX,ptchdbits.co
 
 # 域名关键字匹配
 # DOMAIN-KEYWORD,1e100
