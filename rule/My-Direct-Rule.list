@@ -7,7 +7,7 @@ DOMAIN,v1.micu.hk
 DOMAIN,v0.micu.hk
 
 # 域名后缀匹配
-#DOMAIN-SUFFIX,ptchdbits.co
+DOMAIN-SUFFIX,ptchdbits.co
 DOMAIN-SUFFIX,hhanclub.top
 DOMAIN-SUFFIX,m-team.cc
 DOMAIN-SUFFIX,btschool.club
@@ -19,7 +19,7 @@ DOMAIN-SUFFIX,hdtime.org
 DOMAIN-SUFFIX,leyz.top
 
 # 域名关键字匹配
-#DOMAIN-KEYWORD,ptchdbits
+DOMAIN-KEYWORD,ptchdbits
 DOMAIN-KEYWORD,m-team
 DOMAIN-KEYWORD,hhanclub
 DOMAIN-KEYWORD,btschool
