@@ -1,4 +1,5 @@
 # 自定义代理列表
+DOMAIN,www.qingwapt.com
 
 # 域名后缀匹配
 DOMAIN-SUFFIX,mvnrepository.com
