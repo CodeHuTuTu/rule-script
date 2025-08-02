@@ -1,7 +1,7 @@
 # 直连规则
 
 # IP匹配
-IP-CIDR,207.32.217.0/24,DIRECT
+
 
 # 域名匹配
 DOMAIN,tv.micu.hk
