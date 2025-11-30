@@ -40,7 +40,6 @@ DOMAIN,hust.edu.cn
 DOMAIN,xingtan.one
 DOMAIN,hitpt.com
 DOMAIN,pterclub.com
-DOMAIN,mykyjx.com
 
 # 域名后缀匹配
 DOMAIN-SUFFIX,ptchdbits.co
@@ -65,6 +64,7 @@ DOMAIN-SUFFIX,hdarea.club
 DOMAIN-SUFFIX,pting.club
 DOMAIN-SUFFIX,hikeba.de
 DOMAIN-SUFFIX,hikeba.club
+DOMAIN-SUFFIX,mykyjx.com
 
 # 域名关键字匹配
 DOMAIN-KEYWORD,ptchdbits
