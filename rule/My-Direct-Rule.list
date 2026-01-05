@@ -47,6 +47,7 @@ DOMAIN,hitpt.com
 DOMAIN,pterclub.com
 
 # 域名后缀匹配
+DOMAIN-SUFFIX,steamcontent.com
 DOMAIN-SUFFIX,ptchdbits.co
 DOMAIN-SUFFIX,hhanclub.top
 DOMAIN-SUFFIX,m-team.cc
