@@ -10,6 +10,7 @@ IP-CIDR,142.171.0.0/16,DIRECT,no-resolve
 IP-CIDR,47.79.0.0/16,DIRECT,no-resolve
 
 # 域名匹配
+DOMAIN,qdz1.top
 DOMAIN,tv.micu.hk
 DOMAIN,tv1.micu.hk
 DOMAIN,v1.micu.hk
