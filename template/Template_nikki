@@ -1,0 +1,432 @@
+############################################
+# Nikki (OpenWrt) / Mihomo Best-Practice FULL Template
+# - 2 subscriptions (proxy-providers)
+# - Manual nodes templates (commented): vless / hysteria2 / vmess / ss
+# - DNS leak protection: fake-ip + respect-rules + nameserver-policy + proxy-server-nameserver
+# - Full rule-based routing via GitHub rule-providers
+# - YAML anchors for reuse
+# - Node filtering: across providers + manual proxies
+############################################
+
+###############
+# Reusable anchors
+###############
+x-provider-common: &provider_common
+  type: http
+  interval: 3600
+  proxy: DIRECT
+  health-check: &healthcheck
+    enable: true
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    timeout: 5000
+    lazy: true
+
+x-rp-domain: &rp_domain
+  type: http
+  behavior: domain
+  format: text
+  interval: 86400
+
+x-rp-ipcidr: &rp_ipcidr
+  type: http
+  behavior: ipcidr
+  format: text
+  interval: 86400
+
+x-rp-classical: &rp_classical
+  type: http
+  behavior: classical
+  format: yaml
+  interval: 86400
+
+###############
+# General
+###############
+port: 7890
+socks-port: 7891
+mixed-port: 7892
+
+allow-lan: true
+bind-address: "*"
+mode: rule
+log-level: info
+
+external-controller: 0.0.0.0:9090
+secret: ""
+
+# GEO database download URLs (optional, but recommended)
+geox-url:
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
+  asn: "https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+###############
+# TUN / Transparent proxy
+###############
+tun:
+  enable: true
+  stack: system
+  device: nikki-tun
+  mtu: 1500
+  auto-route: false
+  auto-detect-interface: false
+  strict-route: true
+  dns-hijack:
+    - any:53
+
+###############
+# DNS (anti-leak)
+###############
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  cache-algorithm: arc
+
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+
+  # 精准控制 fake/real，避免局域网/国内域名异常
+  fake-ip-filter-mode: rule
+  fake-ip-filter:
+    - DOMAIN-SUFFIX,lan,real-ip
+    - DOMAIN-SUFFIX,local,real-ip
+    - DOMAIN-SUFFIX,home.arpa,real-ip
+    - GEOSITE,private,real-ip
+    - GEOSITE,cn,real-ip
+    - MATCH,fake-ip
+
+  # 解析加密 DNS 的域名 / 其它基础域名（必须可靠）
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+
+  # 国内 DoH（直连更快）
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+
+  # 国外可信 resolver（防污染）
+  fallback:
+    - tls://1.1.1.1
+    - tls://8.8.8.8
+
+  # 关键：让 DNS 查询也“跟随规则分流”，降低 DNS 泄露
+  respect-rules: true
+
+  # 关键：用于解析代理节点 server 的域名（避免解析走错链路）
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+
+  # 按 geosite 分配不同 resolver
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://doh.pub/dns-query
+      - https://dns.alidns.com/dns-query
+    "geosite:geolocation-!cn":
+      - tls://1.1.1.1
+      - tls://8.8.8.8
+
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    geosite:
+      - gfw
+    ipcidr:
+      - 240.0.0.0/4
+
+###############
+# Proxy Providers (2 subscriptions)
+# 你只需要把 YOUR_SUB_URL_A / YOUR_SUB_URL_B 换成你的订阅链接即可
+###############
+proxy-providers:
+  AirportA:
+    <<: *provider_common
+    url: "https://YOUR_SUB_URL_A"
+    path: ./proxy_providers/AirportA.yaml
+    override:
+      additional-prefix: "[A] "
+  AirportB:
+    <<: *provider_common
+    url: "https://YOUR_SUB_URL_B"
+    path: ./proxy_providers/AirportB.yaml
+    override:
+      additional-prefix: "[B] "
+
+###############
+# Manual Proxies (templates; commented)
+###############
+proxies:
+  # --- VLESS (template) ---
+  # - name: "My-VLESS-TLS"
+  #   type: vless
+  #   server: example.com
+  #   port: 443
+  #   uuid: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  #   udp: true
+  #   tls: true
+  #   servername: example.com
+  #   network: ws
+  #   ws-opts:
+  #     path: /vless
+  #     headers:
+  #       Host: example.com
+
+  # --- Hysteria2 (hy2 template) ---
+  # - name: "My-HY2"
+  #   type: hysteria2
+  #   server: example.com
+  #   port: 443
+  #   password: "your_password"
+  #   sni: example.com
+  #   alpn: [h3]
+  #   skip-cert-verify: false
+  #   udp: true
+
+  # --- VMess (template) ---
+  # - name: "My-VMess-WS"
+  #   type: vmess
+  #   server: example.com
+  #   port: 443
+  #   uuid: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  #   alterId: 0
+  #   cipher: auto
+  #   tls: true
+  #   network: ws
+  #   ws-opts:
+  #     path: /vmess
+  #     headers:
+  #       Host: example.com
+
+  # --- Shadowsocks (ss template) ---
+  # - name: "My-SS"
+  #   type: ss
+  #   server: example.com
+  #   port: 8388
+  #   cipher: aes-128-gcm
+  #   password: "your_password"
+  #   udp: true
+
+###############
+# Proxy Groups
+# - use: 引入多个订阅
+# - include-all-proxies: true 把手动节点也纳入候选池
+# - filter / exclude-filter 实现节点筛选（多机场 + 手动一起生效）
+###############
+proxy-groups:
+  - name: "PROXY"
+    type: select
+    proxies:
+      - "AUTO"
+      - "FALLBACK"
+      - "HK"
+      - "SG"
+      - "JP"
+      - "US"
+      - "STREAM"
+      - "AI"
+      - "DIRECT"
+      - "REJECT"
+
+  - name: "AUTO"
+    type: url-test
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+    use: [AirportA, AirportB]
+    include-all-proxies: true
+    exclude-type: "direct|reject"
+    exclude-filter: "(?i)剩余|过期|到期|维护|官网|套餐|流量|测试"
+
+  - name: "FALLBACK"
+    type: fallback
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    lazy: true
+    use: [AirportA, AirportB]
+    include-all-proxies: true
+    exclude-type: "direct|reject"
+    exclude-filter: "(?i)剩余|过期|到期|维护|官网|套餐|流量|测试"
+
+  - name: "HK"
+    type: select
+    use: [AirportA, AirportB]
+    include-all-proxies: true
+    filter: "(?i)港|hk|hongkong|hong kong"
+    exclude-filter: "(?i)家宽|专线|实验|剩余|过期|到期|维护|测试"
+    exclude-type: "direct|reject"
+
+  - name: "SG"
+    type: select
+    use: [AirportA, AirportB]
+    include-all-proxies: true
+    filter: "(?i)新|sg|singapore"
+    exclude-filter: "(?i)家宽|专线|实验|剩余|过期|到期|维护|测试"
+    exclude-type: "direct|reject"
+
+  - name: "JP"
+    type: select
+    use: [AirportA, AirportB]
+    include-all-proxies: true
+    filter: "(?i)日|jp|japan"
+    exclude-filter: "(?i)家宽|专线|实验|剩余|过期|到期|维护|测试"
+    exclude-type: "direct|reject"
+
+  - name: "US"
+    type: select
+    use: [AirportA, AirportB]
+    include-all-proxies: true
+    filter: "(?i)美|us|united states|unitedstates|america"
+    exclude-filter: "(?i)家宽|专线|实验|剩余|过期|到期|维护|测试"
+    exclude-type: "direct|reject"
+
+  - name: "STREAM"
+    type: select
+    proxies: ["PROXY", "HK", "SG", "JP", "US", "DIRECT"]
+
+  - name: "AI"
+    type: select
+    proxies: ["SG", "US", "JP", "PROXY"]
+
+  - name: "DIRECT"
+    type: select
+    proxies: ["DIRECT"]
+
+  - name: "REJECT"
+    type: select
+    proxies: ["REJECT"]
+
+###############
+# Rule Providers (GitHub repositories)
+###############
+rule-providers:
+  # --- Ads (CN oriented) ---
+  ad-rules:
+    <<: *rp_domain
+    path: ./rules/ad-rules.txt
+    url: "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adrules_domainset.txt"
+
+  # --- Loyalsoldier base set ---
+  reject:
+    <<: *rp_domain
+    path: ./rules/reject.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/reject.txt"
+  direct:
+    <<: *rp_domain
+    path: ./rules/direct.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/direct.txt"
+  proxy:
+    <<: *rp_domain
+    path: ./rules/proxy.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/proxy.txt"
+  private:
+    <<: *rp_domain
+    path: ./rules/private.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/private.txt"
+  gfw:
+    <<: *rp_domain
+    path: ./rules/gfw.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/gfw.txt"
+  greatfire:
+    <<: *rp_domain
+    path: ./rules/greatfire.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/greatfire.txt"
+  tld-not-cn:
+    <<: *rp_domain
+    path: ./rules/tld-not-cn.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/tld-not-cn.txt"
+
+  cncidr:
+    <<: *rp_ipcidr
+    path: ./rules/cncidr.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/cncidr.txt"
+  telegramcidr:
+    <<: *rp_ipcidr
+    path: ./rules/telegramcidr.txt
+    url: "https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/telegramcidr.txt"
+
+  # --- blackmatrix7 app/service sets ---
+  openai:
+    <<: *rp_classical
+    path: ./rules/OpenAI.yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/OpenAI/OpenAI.yaml"
+  youtube:
+    <<: *rp_classical
+    path: ./rules/YouTube.yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/YouTube/YouTube_No_Resolve.yaml"
+  netflix:
+    <<: *rp_classical
+    path: ./rules/Netflix.yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix_Classical.yaml"
+  telegram:
+    <<: *rp_classical
+    path: ./rules/Telegram.yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram_No_Resolve.yaml"
+  speedtest:
+    <<: *rp_classical
+    path: ./rules/Speedtest.yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Speedtest/Speedtest.yaml"
+
+  # --- ACL4SSR service splits ---
+  apple:
+    <<: *rp_classical
+    path: ./rules/Apple.yaml
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Apple.yaml"
+  microsoft:
+    <<: *rp_classical
+    path: ./rules/Microsoft.yaml
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Microsoft.yaml"
+  onedrive:
+    <<: *rp_classical
+    path: ./rules/OneDrive.yaml
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/OneDrive.yaml"
+  google:
+    <<: *rp_classical
+    path: ./rules/Google.yaml
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Google.yaml"
+
+###############
+# Rules (order matters)
+###############
+rules:
+  # 1) Ads / Privacy
+  - RULE-SET,ad-rules,REJECT
+  - RULE-SET,reject,REJECT
+
+  # 2) LAN / Private first
+  - RULE-SET,private,DIRECT
+
+  # 3) Common direct optimizations (CN users often prefer DIRECT here; adjust to your taste)
+  - RULE-SET,apple,DIRECT
+  - RULE-SET,microsoft,DIRECT
+  - RULE-SET,onedrive,DIRECT
+
+  # 4) Business splits
+  - RULE-SET,openai,AI
+  - RULE-SET,telegram,PROXY
+  - RULE-SET,netflix,STREAM
+  - RULE-SET,youtube,PROXY
+  - RULE-SET,speedtest,PROXY
+
+  # 5) Base split (direct/proxy/gfw)
+  - RULE-SET,direct,DIRECT
+  - RULE-SET,proxy,PROXY
+  - RULE-SET,gfw,PROXY
+  - RULE-SET,greatfire,PROXY
+  - RULE-SET,tld-not-cn,PROXY
+
+  # 6) CIDR sets
+  - RULE-SET,telegramcidr,PROXY,no-resolve
+  - RULE-SET,cncidr,DIRECT,no-resolve
+  - GEOIP,CN,DIRECT
+
+  # 7) Final
+  - MATCH,PROXY
