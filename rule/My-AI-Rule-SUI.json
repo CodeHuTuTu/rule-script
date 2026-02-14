@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": [
+      ],
+      "domain_suffix": [
+        "grokusercontent.com",
+        "grokipedia.com"
+      ],
+      "ip_cidr": [
+      ]
+    }
+  ]
+}
