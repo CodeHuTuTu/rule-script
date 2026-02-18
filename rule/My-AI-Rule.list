@@ -4,3 +4,6 @@ DOMAIN-SUFFIX,grokusercontent.com
 DOMAIN-SUFFIX,grok.com
 DOMAIN-SUFFIX,x.ai
 DOMAIN-SUFFIX,grok.x.com
+
+# OPENAI
+DOMAIN-SUFFIX,oaistatic.com
